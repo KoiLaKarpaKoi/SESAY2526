@@ -158,6 +158,9 @@ public class GameScreen extends BaseMenuScreen {
             stage.getBatch().setColor(Color.WHITE);
 
             // 2a. Render Map FIRST (behind sprites)
+            // Note: TiledMapRenderer manages its own rendering and should NOT be called
+            // inside a SpriteBatch.begin/end block. We end the batch, render the map,
+            // then restart the batch for sprite rendering.
             stage.getBatch().end(); // End batch before map rendering
             if (mapRenderer != null) {
                 mapRenderer.render();

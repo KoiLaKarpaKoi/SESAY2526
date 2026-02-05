@@ -13,7 +13,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
  * Supports orthogonal 2D maps with proper z-ordering.
  */
 public class MapRenderer {
-    private AssetManager assetManager;
     private TiledMap tiledMap;
     private TiledMapRenderer tiledMapRenderer;
     private Viewport viewport;
@@ -21,11 +20,12 @@ public class MapRenderer {
     /**
      * Creates a new MapRenderer.
      * 
-     * @param assetManager The asset manager for loading resources
+     * @param assetManager The asset manager (reserved for future use)
      * @param viewport The viewport for rendering (can be set later)
      */
     public MapRenderer(AssetManager assetManager, Viewport viewport) {
-        this.assetManager = assetManager;
+        // AssetManager parameter kept for API compatibility but not currently used
+        // Maps are loaded directly with TmxMapLoader
         this.viewport = viewport;
     }
 
