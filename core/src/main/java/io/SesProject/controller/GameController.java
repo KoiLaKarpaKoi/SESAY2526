@@ -16,6 +16,7 @@ import io.SesProject.model.game.npc.factory.*;
 import io.SesProject.service.AuthService;
 import io.SesProject.view.BaseMenuScreen;
 import io.SesProject.view.game.GameScreen;
+import io.SesProject.view.game.MapRenderer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ public class GameController extends BaseController {
     private List<GameObject> worldEntities;
     private List<InputStrategy> inputStrategies;
     private List<PlayerEntity> activePlayers;
+    private MapRenderer mapRenderer;
 
     // Flag per bloccare input durante le interazioni
     private boolean isDialogActive = false;
@@ -94,6 +96,18 @@ public class GameController extends BaseController {
                 worldEntities.add(npc);
                 session.addNpc(npc.getData());
             }
+        }
+
+        // --- 3. SETUP MAP ---
+        try {
+            mapRenderer = new MapRenderer(
+                game.getSystemFacade().getAssetManager(),
+                null // will be set by GameScreen
+            );
+            mapRenderer.loadMap("level1.tmx");
+            System.out.println("[GAME] Map loaded successfully");
+        } catch (Exception e) {
+            System.err.println("[GAME] Failed to load map: " + e.getMessage());
         }
     }
 
@@ -259,5 +273,9 @@ public class GameController extends BaseController {
 
     public RpgGame getGame(){
         return this.game;
+    }
+
+    public MapRenderer getMapRenderer() {
+        return this.mapRenderer;
     }
 }

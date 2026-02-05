@@ -21,12 +21,19 @@ public class GameScreen extends BaseMenuScreen {
 
     private GameController controller;
     private SpriteFlyweightFactory spriteFactory;
+    private MapRenderer mapRenderer;
 
     public GameScreen(GameController controller) {
         super();
         this.controller = controller;
         // Inizializza la factory passandogli la facade
         this.spriteFactory = new SpriteFlyweightFactory(controller.getGame().getSystemFacade());
+
+        // Initialize MapRenderer
+        this.mapRenderer = new MapRenderer(
+            controller.getGame().getSystemFacade().getAssetManager(),
+            stage.getViewport()
+        );
 
         // Imposta l'input processor subito
         Gdx.input.setInputProcessor(stage);
@@ -127,6 +134,13 @@ public class GameScreen extends BaseMenuScreen {
     @Override
     protected void buildUI() {
         // Eventuale HUD di gioco qui
+        
+        // Try to load the map
+        try {
+            mapRenderer.loadMap("level1.tmx");
+        } catch (Exception e) {
+            System.err.println("[MAP] Error loading map: " + e.getMessage());
+        }
     }
 
     @Override
@@ -143,6 +157,17 @@ public class GameScreen extends BaseMenuScreen {
             stage.getBatch().setProjectionMatrix(stage.getViewport().getCamera().combined);
             stage.getBatch().setColor(Color.WHITE);
 
+            // 2a. Render Map FIRST (behind sprites)
+            // Note: TiledMapRenderer manages its own rendering and should NOT be called
+            // inside a SpriteBatch.begin/end block. We end the batch, render the map,
+            // then restart the batch for sprite rendering.
+            stage.getBatch().end(); // End batch before map rendering
+            if (mapRenderer != null) {
+                mapRenderer.render();
+            }
+            stage.getBatch().begin(); // Resume batch for sprites
+
+            // 2b. Render Sprites SECOND (on top of map)
             for (GameObject obj : controller.getWorldEntities()) {
                 // Recupera stato e dati
                 VisualState state = obj.getVisualState();
@@ -170,5 +195,17 @@ public class GameScreen extends BaseMenuScreen {
 
     public GameController getController() {
         return this.controller;
+    }
+
+    public MapRenderer getMapRenderer() {
+        return this.mapRenderer;
+    }
+
+    @Override
+    public void dispose() {
+        if (mapRenderer != null) {
+            mapRenderer.dispose();
+        }
+        super.dispose();
     }
 }
